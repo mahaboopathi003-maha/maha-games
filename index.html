@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fff0f7">
+<title>MAHA GAMES — Cloud Hop</title>
+<style>
+  :root{--pink:#ff6fae;--purple:#8d73ff;--blue:#72d7ff;--ink:#382b55;--cream:#fffaf0}
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;color:var(--ink)}
+  body{background:radial-gradient(circle at 10% 5%,#fff 0 8%,transparent 25%),linear-gradient(145deg,#ffe2f0,#e9e3ff 52%,#d9f7ff);padding:16px}
+  .wrap{max-width:1000px;margin:auto}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:4px 0 14px}
+  .brand{display:flex;align-items:center;gap:10px}
+  .logo{width:52px;height:52px;display:grid;place-items:center;background:linear-gradient(135deg,#ff79b7,#9c83ff);border-radius:18px;font-size:28px;box-shadow:0 8px 0 #d9b9f7}
+  h1{font-size:clamp(1.5rem,4vw,2.25rem);line-height:1;margin:0;letter-spacing:1px}
+  .tag{font-size:.82rem;color:#77668e;margin-top:5px}
+  .pill{border:2px solid #fff;background:#ffffffb8;border-radius:999px;padding:9px 13px;font-weight:800;box-shadow:0 4px 0 #ddc9f4}
+  .panel{background:#ffffffb8;border:3px solid #fff;border-radius:26px;padding:clamp(12px,2.5vw,22px);box-shadow:0 14px 35px #7b63a51b}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+  .stat{background:#fff;border:2px solid #f5e6ff;border-radius:18px;text-align:center;padding:9px 5px}
+  .stat span{display:block;font-size:.75rem;font-weight:800;color:#9582ad;text-transform:uppercase;letter-spacing:.8px}
+  .stat strong{font-size:clamp(1.2rem,3vw,1.7rem)}
+  .gamebox{position:relative;overflow:hidden;border:3px solid white;border-radius:23px;background:#bdefff;box-shadow:inset 0 0 0 2px #c7a8ff}
+  canvas{display:block;width:100%;height:auto;aspect-ratio:900/440;touch-action:manipulation}
+  .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:#fff7;backdrop-filter:blur(3px);text-align:center}
+  .overlay.hidden{display:none}
+  .modal{max-width:440px;background:#fff;border:3px solid #fff;border-radius:25px;padding:20px 22px;box-shadow:0 10px 0 #d6c3ff,0 18px 35px #4d367433}
+  .modal .emoji{font-size:clamp(2.2rem,8vw,4rem);line-height:1.15}
+  .modal h2{margin:7px 0;font-size:clamp(1.35rem,4vw,2rem)}
+  .modal p{margin:7px 0 15px;color:#76668c;line-height:1.45}
+  button{font:inherit;cursor:pointer;border:0;border-radius:999px;padding:12px 19px;font-weight:900;color:white;background:linear-gradient(135deg,var(--pink),var(--purple));box-shadow:0 5px 0 #b25cc7;transition:transform .12s,filter .12s}
+  button:active{transform:translateY(3px);box-shadow:0 2px 0 #b25cc7}
+  button:focus-visible{outline:3px solid #382b55;outline-offset:3px}
+  .controls{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:13px}
+  .hint{font-size:.9rem;color:#74638b;line-height:1.45}
+  .control-buttons{display:flex;gap:8px}
+  .control-buttons button{min-width:60px;padding:11px 14px}
+  .secondary{background:linear-gradient(135deg,#7bdcff,#7e9bff);box-shadow:0 5px 0 #6a78d1}
+  .tips{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+  .tip{background:#ffffffa6;border:2px solid white;border-radius:17px;padding:12px;font-size:.86rem;line-height:1.4}
+  .tip b{display:block;margin-bottom:4px}
+  footer{text-align:center;font-size:.8rem;color:#8b78a3;padding:18px 0 4px}
+  @media(max-width:560px){body{padding:10px}.pill{font-size:.8rem}.tips{grid-template-columns:1fr}.tip{padding:10px}.hint{width:100%}.control-buttons{width:100%}.control-buttons button{flex:1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><div class="logo" aria-hidden="true">🌈</div><div><h1>MAHA GAMES</h1><div class="tag">tiny jumps • big adventures ✨</div></div></div>
+    <div class="pill">🍓 CLOUD HOP</div>
+  </header>
+  <main class="panel">
+    <div class="stats" aria-live="polite">
+      <div class="stat"><span>Score</span><strong id="score">0</strong></div>
+      <div class="stat"><span>Best</span><strong id="best">0</strong></div>
+      <div class="stat"><span>Stars</span><strong id="stars">0 ⭐</strong></div>
+    </div>
+    <div class="gamebox">
+      <canvas id="game" width="900" height="440" aria-label="Cloud Hop endless runner game. Tap or press Space to jump over obstacles."></canvas>
+      <div class="overlay" id="overlay">
+        <div class="modal">
+          <div class="emoji" id="modalEmoji">🐰☁️</div>
+          <h2 id="modalTitle">Ready, cloud hopper?</h2>
+          <p id="modalText">Jump over grumpy mushrooms, collect shiny stars, and see how far you can go!</p>
+          <button id="mainButton">Let's Hop! ▶</button>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="hint"><b>How to play:</b> Tap the game, press <b>Space / ↑</b>, or use the JUMP button. Double-jump is available in the air!</div>
+      <div class="control-buttons"><button class="secondary" id="pauseButton" disabled>Ⅱ Pause</button><button id="jumpButton">⬆ JUMP</button></div>
+    </div>
+    <div class="tips">
+      <div class="tip"><b>🍄 Dodge!</b> Hop over the silly mushrooms and puddles.</div>
+      <div class="tip"><b>⭐ Collect!</b> Grab stars for bonus points.</div>
+      <div class="tip"><b>⚡ Get faster!</b> The longer you survive, the quicker it gets.</div>
+    </div>
+  </main>
+  <footer>Made with 💖 by Maha • Keep hopping, keep smiling!</footer>
+</div>
+<script>
+(() => {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const $ = id => document.getElementById(id);
+  const scoreEl=$('score'), bestEl=$('best'), starsEl=$('stars');
+  const overlay=$('overlay'), mainButton=$('mainButton'), pauseButton=$('pauseButton');
+  let best = 0;
+  try { best = Number(localStorage.getItem('mahaCloudHopBest') || 0); } catch(e) {}
+  bestEl.textContent=best;
+  const W=900,H=440,groundY=356;
+  let state='ready',score=0,stars=0,speed=5,frame=0,lastTime=0,spawn=0,starSpawn=0,objects=[],particles=[],clouds=[];
+  const player={x:115,y:groundY-54,w:48,h:54,vy:0,jumps:0,blink:0};
+  for(let i=0;i<7;i++) clouds.push({x:i*160+20,y:35+(i%3)*42,s:0.7+(i%3)*0.25});
+  const rand=(a,b)=>a+Math.random()*(b-a);
+  function reset(){
+    score=0;stars=0;speed=5;frame=0;spawn=45;starSpawn=90;objects=[];particles=[];
+    player.y=groundY-player.h;player.vy=0;player.jumps=0;player.blink=0;
+    scoreEl.textContent='0';starsEl.textContent='0 ⭐';state='playing';overlay.classList.add('hidden');pauseButton.disabled=false;pauseButton.textContent='Ⅱ Pause';
+    lastTime=performance.now();requestAnimationFrame(loop);
+  }
+  function jump(){
+    if(state==='ready'||state==='over'){reset();return}
+    if(state!=='playing')return;
+    if(player.jumps<2){player.vy=player.jumps===0?-13.6:-11.5;player.jumps++;burst(player.x+player.w/2,player.y+player.h,'#fff');}
+  }
+  function burst(x,y,color){for(let i=0;i<8;i++)particles.push({x,y,vx:rand(-2.5,2.5),vy:rand(-4,-1),life:rand(15,27),color,size:rand(2,5)})}
+  function endGame(){
+    state='over';pauseButton.disabled=true;
+    best=Math.max(best,Math.floor(score));
+    try{localStorage.setItem('mahaCloudHopBest',best)}catch(e){}
+    bestEl.textContent=best;
+    $('modalEmoji').textContent=score>350?'🏆🐰':'🐰💫';
+    $('modalTitle').textContent=score>350?'Cloud Hop Champion!':'Oops, cute crash!';
+    $('modalText').textContent=`You scored ${Math.floor(score)} points and collected ${stars} star${stars===1?'':'s'}. Want another run?`;
+    mainButton.textContent='Play Again ↻';overlay.classList.remove('hidden');
+  }
+  function pause(){
+    if(state==='playing'){state='paused';pauseButton.textContent='▶ Resume';$('modalEmoji').textContent='☁️💤';$('modalTitle').textContent='Taking a cloud break';$('modalText').textContent='Ready when you are!';mainButton.textContent='Resume ▶';overlay.classList.remove('hidden')}
+    else if(state==='paused'){state='playing';overlay.classList.add('hidden');pauseButton.textContent='Ⅱ Pause';lastTime=performance.now();requestAnimationFrame(loop)}
+  }
+  mainButton.addEventListener('click',()=>{if(state==='paused'){pause()}else{reset()}});
+  pauseButton.addEventListener('click',pause);
+  $('jumpButton').addEventListener('pointerdown',e=>{e.preventDefault();jump()});
+  canvas.addEventListener('pointerdown',e=>{if(state==='playing')jump()});
+  document.addEventListener('keydown',e=>{
+    if(['Space','ArrowUp','KeyW'].includes(e.code)){e.preventDefault();if(state==='paused')return;jump()}
+    if(e.code==='KeyP')pause();
+  });
+  function rounded(x,y,w,h,r,fill){ctx.fillStyle=fill;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill()}
+  function drawStar(x,y,r,rot=0){
+    ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.beginPath();
+    for(let i=0;i<10;i++){let a=-Math.PI/2+i*Math.PI/5,rr=i%2===0?r:r*.45;ctx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr)}
+    ctx.closePath();ctx.fillStyle='#ffd34e';ctx.fill();ctx.strokeStyle='#ffad43';ctx.lineWidth=2;ctx.stroke();ctx.restore();
+  }
+  function drawBackground(dt){
+    const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#a7eaff');g.addColorStop(.72,'#f2e9ff');g.addColorStop(1,'#ffdff0');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    // sun
+    ctx.fillStyle='#fff1a8';ctx.beginPath();ctx.arc(760,78,35,0,Math.PI*2);ctx.fill();
+    clouds.forEach(c=>{c.x-=speed*.18*dt/16.67;if(c.x<-100)c.x=W+50;ctx.fillStyle='#ffffffc9';ctx.beginPath();ctx.ellipse(c.x,c.y,37*c.s,16*c.s,0,0,Math.PI*2);ctx.ellipse(c.x-22*c.s,c.y+5*c.s,20*c.s,14*c.s,0,0,Math.PI*2);ctx.ellipse(c.x+21*c.s,c.y+4*c.s,23*c.s,13*c.s,0,0,Math.PI*2);ctx.fill()});
+    // distant candy hills
+    ctx.fillStyle='#c5f3d7';ctx.beginPath();ctx.moveTo(0,groundY);for(let x=0;x<=W;x+=10)ctx.lineTo(x,300+Math.sin(x*.012)*16+Math.sin(x*.027)*8);ctx.lineTo(W,groundY);ctx.fill();
+    ctx.fillStyle='#8de3c2';ctx.fillRect(0,groundY,W,H-groundY);
+    ctx.fillStyle='#fff8c9';for(let x=0;x<W;x+=38){let xx=(x-(frame*speed*.55)%38);ctx.beginPath();ctx.arc(xx,groundY+20,3,0,Math.PI*2);ctx.fill()}
+    ctx.fillStyle='#65cda8';ctx.fillRect(0,groundY+7,W,7);
+  }
+  function drawPlayer(){
+    const x=player.x,y=player.y;
+    // shadow
+    ctx.fillStyle='#4d9c9b33';ctx.beginPath();ctx.ellipse(x+25,groundY+3,player.jumps?15:25,5,0,0,Math.PI*2);ctx.fill();
+    // ears
+    rounded(x+8,y-10,12,28,8,'#fff');rounded(x+27,y-13,12,31,8,'#fff');
+    rounded(x+11,y-5,5,17,4,'#ff9fc7');rounded(x+30,y-8,5,20,4,'#ff9fc7');
+    // body
+    rounded(x,y+8,48,43,17,'#fff');rounded(x+5,y+13,38,35,14,'#ffacd0');
+    // face
+    ctx.fillStyle='#49385d';ctx.beginPath();ctx.arc(x+16,y+26,2.7,0,Math.PI*2);ctx.arc(x+32,y+26,2.7,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#49385d';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x+24,y+29,4,0.15,Math.PI-.15);ctx.stroke();
+    ctx.fillStyle='#ff739e';ctx.beginPath();ctx.arc(x+9,y+31,4,0,Math.PI*2);ctx.arc(x+39,y+31,4,0,Math.PI*2);ctx.fill();
+    // feet
+    rounded(x+4,y+43,17,9,5,'#fff');rounded(x+28,y+43,17,9,5,'#fff');
+    // sparkle
+    if(player.jumps){drawStar(x+48,y+4,6,frame*.08)}
+  }
+  function drawObstacle(o){
+    if(o.type==='mushroom'){
+      // stem and cap
+      rounded(o.x+10,o.y+20,o.w-20,o.h-18,7,'#fff2d9');
+      ctx.fillStyle='#ff729f';ctx.beginPath();ctx.ellipse(o.x+o.w/2,o.y+20,o.w/2,20,0,Math.PI,Math.PI*2);ctx.lineTo(o.x+o.w,o.y+22);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(o.x+12,o.y+14,4,0,Math.PI*2);ctx.arc(o.x+o.w-12,o.y+15,4,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#59436b';ctx.beginPath();ctx.arc(o.x+o.w/2-5,o.y+29,2,0,Math.PI*2);ctx.arc(o.x+o.w/2+5,o.y+29,2,0,Math.PI*2);ctx.fill();
+    }else{
+      rounded(o.x,o.y+8,o.w,o.h-8,12,'#7b9cff');rounded(o.x+5,o.y,o.w-10,17,8,'#9cafff');
+      ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(o.x+o.w/2-5,o.y+24,3,0,Math.PI*2);ctx.arc(o.x+o.w/2+5,o.y+24,3,0,Math.PI*2);ctx.fill();
+    }
+  }
+  function draw(){
+    drawBackground(16.67);
+    objects.forEach(o=>{if(o.kind==='star')drawStar(o.x,o.y,o.r,frame*.04);else drawObstacle(o)});
+    particles.forEach(p=>{ctx.globalAlpha=Math.max(0,p.life/27);ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1});
+    drawPlayer();
+    if(state==='playing'&&frame<160){ctx.fillStyle='#5e6388';ctx.font='bold 16px system-ui';ctx.fillText('TAP / SPACE TO JUMP',24,32)}
+  }
+  function update(dt){
+    const scale=Math.min(dt/16.67,2.5);frame+=scale;score+=scale*0.12;speed=Math.min(11,5+score/170);
+    player.vy+=.68*scale;player.y+=player.vy*scale;
+    if(player.y>=groundY-player.h){player.y=groundY-player.h;player.vy=0;player.jumps=0}
+    spawn-=scale;starSpawn-=scale;
+    if(spawn<=0){let type=Math.random()<.72?'mushroom':'puddle',w=type==='mushroom'?rand(35,47):rand(38,52),h=type==='mushroom'?rand(43,56):rand(34,43);objects.push({kind:'obstacle',type,x:W+20,y:groundY-h,w,h});spawn=rand(64,105)-speed*2.3}
+    if(starSpawn<=0){let n=Math.random()<.5?1:3;for(let i=0;i<n;i++)objects.push({kind:'star',x:W+30+i*30,y:rand(210,285),r:11});starSpawn=rand(95,150)}
+    objects.forEach(o=>{o.x-=speed*scale;if(o.kind==='star')o.rot=(o.rot||0)+.05*scale});
+    // collisions: slightly forgiving hitboxes
+    for(const o of objects){
+      if(o.kind==='star'&&!o.got&&player.x+player.w-7>o.x-o.r&&player.x+8<o.x+o.r&&player.y+player.h-5>o.y-o.r&&player.y+7<o.y+o.r){
+        o.got=true;stars++;score+=20;starsEl.textContent=stars+' ⭐';burst(o.x,o.y,'#ffd34e');
+      }else if(o.kind==='obstacle'&&player.x+player.w-9>o.x+5&&player.x+8<o.x+o.w-5&&player.y+player.h-7>o.y+7&&player.y+8<o.y+o.h){
+        endGame();return;
+      }
+    }
+    objects=objects.filter(o=>o.x>-100&&!o.got);
+    particles.forEach(p=>{p.x+=p.vx*scale;p.y+=p.vy*scale;p.vy+=.15*scale;p.life-=scale});
+    particles=particles.filter(p=>p.life>0);
+    scoreEl.textContent=Math.floor(score);
+  }
+  function loop(now){
+    if(state!=='playing')return;
+    const dt=Math.min(now-lastTime||16.67,40);lastTime=now;update(dt);draw();
+    if(state==='playing')requestAnimationFrame(loop);
+  }
+  // Initial scene and resize-independent crisp canvas
+  draw();
+})();
+</script>
+</body>
+</html>
